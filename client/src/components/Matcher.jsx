@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef } from 'react';
 import TinderCard from 'react-tinder-card';
 import './Card.css'
 import CloseIcon from '@material-ui/icons/Close';
+import ReplayIcon from '@mui/icons-material/Replay';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import { IconButton } from '@material-ui/core';
 
@@ -25,7 +26,10 @@ const dawgMatches = [
 
 const TindawgCards = () => {
     const [currentIndex, setCurrentIndex] = useState(dawgMatches.length - 1);
+    const [lastDirection, setLastDirection] = useState()
     const currentIndexRef = useRef(currentIndex)
+
+    //caches queue
     const childRefs = useMemo(() =>
         Array(dawgMatches.length)
             .fill(0)
@@ -38,10 +42,12 @@ const TindawgCards = () => {
         currentIndexRef.current = val
     }
 
+    const canGoBack = currentIndex < dawgMatches.length - 1
     const canSwipe = currentIndex >= 0;
 
     //decreases index
-    const swiped = (deleteDirection, i) => {
+    const swiped = (direction, deleteDirection, i) => {
+        setLastDirection(direction)
         updateCurrentIndex(i - 1);
         console.log('left the screen:' + deleteDirection)
     };
@@ -57,7 +63,12 @@ const TindawgCards = () => {
         }
     };
 
-
+    const goBack = async () => {
+        if (!canGoBack) return
+        const newIndex = currentIndex + 1
+        updateCurrentIndex(newIndex)
+        await childRefs[newIndex].current.restoreCard()
+    }
 
     return (
         <div className="tinderCards">
@@ -82,11 +93,22 @@ const TindawgCards = () => {
                 <IconButton className="swipeButtons__left" onClick={() => swipe('left')}>
                     <CloseIcon fontSize="large" />
                 </IconButton>
-                <h2>TINDAWGZ</h2>
+                <IconButton onClick={() => goBack()}>
+                    <ReplayIcon fontSize="large" />
+                </IconButton>
                 <IconButton className="swipeButtons__right" onClick={() => swipe('right')}>
                     <FavoriteIcon fontSize="large" />
                 </IconButton>
             </div>
+            {lastDirection ? (
+                <h2 key={lastDirection} className='infoText'>
+                    You swiped {lastDirection}
+                </h2>
+            ) : (
+                <h2 className='infoText'>
+                    Swipe a card to see which direction you swiped!
+                </h2>
+            )}
         </div>
     );
 };

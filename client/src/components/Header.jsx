@@ -11,6 +11,7 @@ function Header() {
             <IconButton>
                 <PersonIcon fontSize="large" className="header-icon" />
             </IconButton>
+            <h2> TINDAWGZ</h2>
             <IconButton>
                 <MessageIcon fontSize="large" className="header-icon" />
             </IconButton>
